@@ -56,12 +56,15 @@ export default function App() {
   const [movies, setMovies] = useState([]);
   const [watched, setWatched] = useState([]);
   const [query, setQuery] = useState("Hey");
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(function() {
     async function fetchMovies(){
+      setIsLoading(true);
       const res = await fetch(`http://www.omdbapi.com/?apikey=${OMDB_KEY}&s=${query}`)
       let movieData =await res.json()
       setMovies(movieData.Search || [])
+      setIsLoading(false)
     }
     fetchMovies()
   },[query])
@@ -75,7 +78,7 @@ export default function App() {
 
       <Main>
         <Box>
-          <MovieList movies={movies}/>
+          {isLoading ? <Loader/> :< MovieList movies={movies}/>}
         </Box>
         <Box>
           <Box>
@@ -89,6 +92,9 @@ export default function App() {
   );
 }
 
+function Loader(){
+  return (<div className="loader">Loading...</div>)
+}
 function Main({children}){
   return (
     <main className="main">
