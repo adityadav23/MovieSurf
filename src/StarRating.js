@@ -48,6 +48,7 @@ export default function StarRating({
             full={tempRating ? i < tempRating : i < rating}
             color={color}
             size={size}
+            key={i}
           />
         ))}
       </div>

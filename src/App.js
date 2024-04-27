@@ -1,4 +1,4 @@
-import { Children, useState } from "react";
+import { Children, useEffect, useState } from "react";
 
 const tempMovieData = [
   {
@@ -50,15 +50,26 @@ const tempWatchedData = [
 const average = (arr) =>
   arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
 
-export default function App() {
-  const [movies, setMovies] = useState(tempMovieData);
-  const [watched, setWatched] = useState(tempWatchedData);
+const OMDB_KEY = 'ee10d2e5'
 
+export default function App() {
+  const [movies, setMovies] = useState([]);
+  const [watched, setWatched] = useState([]);
+  const [query, setQuery] = useState("Hey");
+
+  useEffect(function() {
+    async function fetchMovies(){
+      const res = await fetch(`http://www.omdbapi.com/?apikey=${OMDB_KEY}&s=${query}`)
+      let movieData =await res.json()
+      setMovies(movieData.Search || [])
+    }
+    fetchMovies()
+  },[query])
   return (
     <>
       <Navbar>
         <Logo></Logo>
-        <Search></Search>
+        <Search query = {query} setQuery={setQuery}></Search>
         <NumResults movies={movies}></NumResults>
       </Navbar>
 
@@ -227,8 +238,7 @@ function Logo(){
       </div>
 }
 
-function Search(){
-  const [query, setQuery] = useState("");
+function Search({query, setQuery}){
   return ( <input
     className="search"
     type="text"
