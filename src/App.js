@@ -51,20 +51,29 @@ const average = (arr) =>
   arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
 
 const OMDB_KEY = 'ee10d2e5'
-
+const BASE_URL  = `http://www.omdbapi.com/?apikey=${OMDB_KEY}`
 export default function App() {
   const [movies, setMovies] = useState([]);
   const [watched, setWatched] = useState([]);
   const [query, setQuery] = useState("Hey");
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("")
+  const [selectedId, setSelectedId] = useState(null);
 
+  function handleSelectMovie(id){
+    if(selectedId !== id)setSelectedId(id);
+    else setSelectedId(null)
+
+  }
+  function closeSelectMovie(id){
+    setSelectedId(null);
+  }
   useEffect(function() {
     async function fetchMovies(){
       try {
         setErrorMsg("") //on searching movie reset the error message
         setIsLoading(true);
-        const res = await fetch(`http://www.omdbapi.com/?apikey=${OMDB_KEY}&s=${query}`);
+        const res = await fetch(`${BASE_URL}&s=${query}`);
         if(!res.ok){
           throw new Error('Error to fetch movie')
         }
@@ -79,11 +88,11 @@ export default function App() {
         setIsLoading(false)
       }
     }
-    console.log(query.length<3)
-    if(query.length<=2){
-      setErrorMsg("")
-      setMovies([])
-      return
+
+    if(query.length<=2){ //if movie search query is less than 2 words don't search
+      setErrorMsg("");
+      setMovies([]);
+      return;
     }
     fetchMovies()
   },[query])
@@ -91,7 +100,7 @@ export default function App() {
     <>
       <Navbar>
         <Logo></Logo>
-        <Search query = {query} setQuery={setQuery}></Search>
+        <Search query={query} setQuery={setQuery}></Search>
         <NumResults movies={movies}></NumResults>
       </Navbar>
 
@@ -100,19 +109,36 @@ export default function App() {
           {/* {isLoading ? <Loader/> :< MovieList movies={movies}/>} */}
           {isLoading && <Loader></Loader>}
           {errorMsg && <ErrorMessage message={errorMsg}></ErrorMessage>}
-          {!isLoading && !errorMsg  && < MovieList movies={movies}/>}
-
+          {!isLoading && !errorMsg && (
+            <MovieList movies={movies} setSelectedId={handleSelectMovie} />
+          )}
         </Box>
-        <Box>
-          <Box>
-            <WatchedSummary watched={watched}/>
-            <WatchedMoviesList watched={watched} />
-          </Box>
 
+        <Box>
+          {selectedId ? (
+            <MovieDetails
+              selectedId={selectedId}
+              closeSelectMovie={closeSelectMovie}
+            />
+          ) : (
+            <>
+              <WatchedSummary watched={watched} />
+              <WatchedMoviesList watched={watched} />
+            </>
+          )}
         </Box>
       </Main>
     </>
   );
+}
+
+function MovieDetails({selectedId, closeSelectMovie}){
+  console.log(selectedId)
+  return (<div className="details">
+    <button className="btn-back" onClick={closeSelectMovie}>
+      &larr;
+    </button>
+  </div>)
 }
 
 function Loader(){
@@ -223,18 +249,18 @@ function Box({children}){
 </div>)
 }
 
-function MovieList({movies}){
+function MovieList({movies,setSelectedId}){
   return (
-    <ul className="list">
+    <ul className="list list-movies">
       {movies?.map((movie) => (
-        <Movie movie={movie} key={movie.imdbID}/>
+        <Movie movie={movie} key={movie.imdbID} setSelectedId={setSelectedId} />
       ))}
     </ul>
-  )
+  );
 }
 
-function Movie({movie}){
-  return <li >
+function Movie({movie, setSelectedId}){
+  return <li onClick={()=>setSelectedId(movie.imdbID)}>
   <img src={movie.Poster} alt={`${movie.Title} poster`} />
   <h3>{movie.Title}</h3>
   <div>
