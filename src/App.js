@@ -152,6 +152,7 @@ function MovieDetails({selectedId, closeSelectMovie, onAddWatched, watched}){
   const [isLoading, setIsLoading] = useState(false);
   // const [errorMsg, setErrorMsg] = useState("");
   const [userRating, setUserRating] = useState(0)
+  const countRef = useRef(0)
   const isWatched = watched.map((movie) => movie.imdbID).includes(selectedId) 
   const watchedMovieData =  watched.find((movie) => movie.imdbID === selectedId);
   const {
@@ -175,6 +176,7 @@ function MovieDetails({selectedId, closeSelectMovie, onAddWatched, watched}){
       imdbRating: Number(imdbRating),
       runtime: Number(runtime.split(" ").at(0)),
       userRating,
+      countRatingDecisions: countRef?.current
     };
     const addedMovie = onAddWatched(newWatchedMovie);
     closeSelectMovie()
@@ -227,7 +229,9 @@ function MovieDetails({selectedId, closeSelectMovie, onAddWatched, watched}){
     },
     [closeSelectMovie]
   );
-
+  useEffect(function(){
+    if(userRating)countRef.current++;
+  },[userRating])
   return (<div className="details" >
   {isLoading ? (
     <Loader />
