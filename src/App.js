@@ -105,6 +105,7 @@ export default function App() {
       setMovies([]);
       return;
     }
+    closeSelectMovie()
     fetchMovies()
     return function(){ controler.abort()}
   },[query])
@@ -212,6 +213,21 @@ function MovieDetails({selectedId, closeSelectMovie, onAddWatched, watched}){
     },
     [title]
   );
+  useEffect(
+    function () {
+      function callback(e) {
+        if (e.code === "Escape") {
+          closeSelectMovie();
+        }
+      }
+      document.addEventListener("keydown", callback);
+      return function () {
+        document.removeEventListener("keydown", callback);
+      };
+    },
+    [closeSelectMovie]
+  );
+
   return (<div className="details" >
   {isLoading ? (
     <Loader />
