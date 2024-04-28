@@ -79,20 +79,21 @@ export default function App() {
     setWatched(watched=> watched.filter(movie=> movie.imdbID !== id))
   }
   useEffect(function() {
+    const controler = new AbortController()
     async function fetchMovies(){
       try {
         setErrorMsg("") //on searching movie reset the error message
         setIsLoading(true);
-        const res = await fetch(`${BASE_URL}&s=${query}`);
+        const res = await fetch(`${BASE_URL}&s=${query}`,{signal: controler.signal});
         if(!res.ok){
           throw new Error('Error to fetch movie')
         }
         let movieData = await res.json()
         if(movieData.Response === 'False'){ throw new Error('Movie not Found!!')}
         setMovies(movieData.Search || [])
-        setIsLoading(false)
-        
+
       } catch (error) {
+        if(error.name !== "AbortError")
         setErrorMsg(error.message)
       }finally{
         setIsLoading(false)
@@ -105,6 +106,7 @@ export default function App() {
       return;
     }
     fetchMovies()
+    return function(){ controler.abort()}
   },[query])
   return (
     <>
