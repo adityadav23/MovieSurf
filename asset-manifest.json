@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/MovieSurf/static/css/main.9a4eb742.css",
+    "main.js": "/MovieSurf/static/js/main.7d53515f.js",
+    "index.html": "/MovieSurf/index.html",
+    "main.9a4eb742.css.map": "/MovieSurf/static/css/main.9a4eb742.css.map",
+    "main.7d53515f.js.map": "/MovieSurf/static/js/main.7d53515f.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.9a4eb742.css",
+    "static/js/main.7d53515f.js"
+  ]
+}
