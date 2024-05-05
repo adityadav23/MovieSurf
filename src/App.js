@@ -1,5 +1,6 @@
 import { Children, useEffect, useRef, useState } from "react";
 import StarRating from "./StarRating";
+import { useMovies } from "./useMovies";
 const tempMovieData = [
   {
     imdbID: "tt1375666",
@@ -53,13 +54,11 @@ const average = (arr) =>
 const OMDB_KEY = 'ee10d2e5'
 const BASE_URL  = `http://www.omdbapi.com/?apikey=${OMDB_KEY}`
 export default function App() {
-  const [movies, setMovies] = useState([]);
   const [watched, setWatched] = useState([]);
   const [query, setQuery] = useState("Hey");
-  const [isLoading, setIsLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState("")
   const [selectedId, setSelectedId] = useState(null);
 
+  const {movies, isLoading, errorMsg} = useMovies(query,);
   function handleSelectMovie(id){
     if(selectedId !== id)setSelectedId(id);
     else setSelectedId(null)
@@ -78,37 +77,7 @@ export default function App() {
   function removeFromWatchedList(id){
     setWatched(watched=> watched.filter(movie=> movie.imdbID !== id))
   }
-  useEffect(function() {
-    const controler = new AbortController()
-    async function fetchMovies(){
-      try {
-        setErrorMsg("") //on searching movie reset the error message
-        setIsLoading(true);
-        const res = await fetch(`${BASE_URL}&s=${query}`,{signal: controler.signal});
-        if(!res.ok){
-          throw new Error('Error to fetch movie')
-        }
-        let movieData = await res.json()
-        if(movieData.Response === 'False'){ throw new Error('Movie not Found!!')}
-        setMovies(movieData.Search || [])
 
-      } catch (error) {
-        if(error.name !== "AbortError")
-        setErrorMsg(error.message)
-      }finally{
-        setIsLoading(false)
-      }
-    }
-
-    if(query.length<=2){ //if movie search query is less than 2 words don't search
-      setErrorMsg("");
-      setMovies([]);
-      return;
-    }
-    closeSelectMovie()
-    fetchMovies()
-    return function(){ controler.abort()}
-  },[query])
   return (
     <>
       <Navbar>
@@ -457,7 +426,7 @@ function Search({query, setQuery}){
       }
     }
     document.addEventListener('keydown',callback)
-    return ()=> document.addEventListener('keydown', callback)
+    return ()=> document.removeEventListener('keydown', callback)
   },[setQuery]);
 
   return ( <input
