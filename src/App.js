@@ -1,6 +1,7 @@
 import { Children, useEffect, useRef, useState } from "react";
 import StarRating from "./StarRating";
 import { useMovies } from "./useMovies";
+import { useLocalStorageState } from "./useLocalStorageState";
 const tempMovieData = [
   {
     imdbID: "tt1375666",
@@ -54,8 +55,8 @@ const average = (arr) =>
 const OMDB_KEY = 'ee10d2e5'
 const BASE_URL  = `http://www.omdbapi.com/?apikey=${OMDB_KEY}`
 export default function App() {
-  const [watched, setWatched] = useState([]);
-  const [query, setQuery] = useState("Hey");
+  const [watched, setWatched] = useLocalStorageState([],"watched");
+  const [query, setQuery] = useState("How to train");
   const [selectedId, setSelectedId] = useState(null);
 
   const {movies, isLoading, errorMsg} = useMovies(query,);
